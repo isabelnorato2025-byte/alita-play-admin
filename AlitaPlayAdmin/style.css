@@ -1,0 +1,390 @@
+/* RESET BÁSICO */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* DEFINIÇÃO DE CORES (TEMA ESCURO) */
+:root {
+    --primary-color: #E74C3C; /* Vermelho de Destaque */
+    --secondary-color: #1F1F1F; /* Preto Profundo para Sidebar/Cards */
+    --background-dark: #121212; /* Fundo Principal */
+    --text-light: #F0F0F0; /* Texto Claro */
+    --text-muted: #AAAAAA; /* Texto Secundário */
+    --card-bg: #282828; /* Fundo de Cartão */
+    --border-color: #333333; /* Linhas e Bordas */
+}
+
+body {
+    background-color: var(--background-dark);
+    color: var(--text-light);
+}
+
+/* --- PARTÍCULAS DE FUNDO --- */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    z-index: 0;
+}
+
+/* --- LAYOUT PRINCIPAL E POSICIONAMENTO --- */
+.dashboard-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(18, 18, 18, 0.95) 0%, rgba(10, 10, 10, 0.95) 100%); 
+}
+
+/* 1. SIDEBAR & LOGO */
+.sidebar {
+    width: 280px;
+    background-color: var(--secondary-color);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid var(--border-color);
+}
+
+.logo {
+    text-align: center;
+    padding: 30px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.logo h2 {
+    margin-top: 10px;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.logo-alita { color: var(--text-light); }
+.logo-play { color: var(--primary-color); }
+
+.logo i {
+    font-size: 32px;
+    color: var(--primary-color);
+}
+
+.main-nav {
+    flex-grow: 1;
+    padding: 20px 0;
+}
+
+.main-nav ul {
+    list-style: none;
+}
+
+.main-nav a {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 16px;
+}
+
+.main-nav a i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+}
+
+.main-nav a:hover, .main-nav .active {
+    background-color: rgba(231, 76, 60, 0.15); 
+    color: var(--primary-color);
+    border-left: 4px solid var(--primary-color);
+    padding-left: 21px; 
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.sidebar-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    display: block;
+    padding: 10px 0;
+    transition: color 0.3s;
+}
+.sidebar-footer a:hover {
+    color: var(--primary-color);
+}
+
+/* 2. ÁREA PRINCIPAL E HEADER */
+.main-content {
+    flex-grow: 1;
+    padding: 30px;
+}
+
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 30px;
+}
+
+.top-header h1 {
+    color: var(--text-light);
+}
+
+.user-profile span {
+    margin-right: 20px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.logout-btn {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.logout-btn:hover {
+    color: #c0392b;
+}
+
+/* 3. CARDS DE RESUMO */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.15); 
+    border-left: 5px solid var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.icon-card {
+    font-size: 30px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    font-size: 16px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.card-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 5px;
+    color: var(--text-light);
+}
+
+/* 4. SEÇÃO DE GERENCIAMENTO (FORMS E TABELAS) */
+.data-management {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.data-management h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.data-management h2 i {
+    margin-right: 10px;
+}
+
+.form-container {
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 30px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 15px;
+    color: var(--text-light);
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus, .form-group select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.btn-submit {
+    background-color: #18BC9C; 
+    color: var(--secondary-color);
+    padding: 12px 25px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.btn-submit:hover {
+    background-color: #1abc9c;
+}
+
+.btn-submit i {
+    margin-right: 8px;
+}
+
+/* ❗ CONTROLES DE BUSCA (UX) ❗ */
+.table-header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+.table-title {
+    font-size: 20px;
+    color: var(--text-light);
+}
+
+.form-group-search {
+    position: relative;
+    max-width: 350px;
+    width: 100%;
+}
+
+.form-group-search input {
+    width: 100%;
+    padding: 10px 10px 10px 40px; 
+    background-color: #333;
+    border: 1px solid var(--border-color);
+    border-radius: 20px; 
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* TABELAS */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 700px;
+}
+
+.data-table th, .data-table td {
+    padding: 15px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table thead th {
+    background-color: var(--secondary-color);
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.data-table tbody tr:hover {
+    background-color: #333;
+}
+
+/* BOTÃO DE EXCLUIR */
+.btn-delete {
+    background-color: var(--primary-color); 
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.7s ease-out forwards;
+    opacity: 0;
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+.delay-4 { animation-delay: 0.8s; }
+.delay-5 { animation-delay: 1.0s; }

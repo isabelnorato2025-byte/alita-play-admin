@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gerenciamento - Alita Play</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite-dish"></i>
+                <h2><span class="logo-alita">Alita</span><span class="logo-play"> Play</span></h2>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" class="active"><i class="fas fa-home"></i> Início</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Clientes</a></li>
+                    <li><a href="#"><i class="fas fa-tags"></i> Planos & Valores</a></li>
+                    <li><a href="#"><i class="fas fa-truck"></i> Fornecedores</a></li>
+                    <li><a href="#"><i class="fas fa-file-invoice-dollar"></i> Financeiro</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#"><i class="fas fa-cog"></i> Configurações</a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header">
+                <h1 class="fade-in-down">Painel de Gerenciamento Alita Play</h1>
+                <div class="user-profile fade-in-down delay-1">
+                    <span>Olá, **Administrador Master**</span>
+                    <a href="#" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                </div>
+            </header>
+            
+            <section class="summary-cards">
+                <div class="card fade-in-up delay-2">
+                    <i class="fas fa-user-plus icon-card"></i>
+                    <h3>Clientes Cadastrados</h3>
+                    <p class="card-value" id="totalClientesCard">0</p>
+                </div>
+                <div class="card fade-in-up delay-3">
+                    <i class="fas fa-dollar-sign icon-card"></i>
+                    <h3>Faturamento (Simulado)</h3>
+                    <p class="card-value">R$ 15.000</p>
+                </div>
+                <div class="card fade-in-up delay-4">
+                    <i class="fas fa-handshake icon-card"></i>
+                    <h3>Fornecedores</h3>
+                    <p class="card-value">12</p>
+                </div>
+            </section>
+
+            <section class="data-management fade-in-up delay-5">
+                <h2><i class="fas fa-user-plus"></i> Cadastro e Gestão de Clientes</h2>
+                
+                <form id="cadastroClienteForm" class="form-container">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo</label>
+                            <input type="text" id="nome" placeholder="Ex: Maria da Silva" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="plano">Plano/Serviço</label>
+                            <select id="plano" required>
+                                <option value="Básico">Plano Básico</option>
+                                <option value="Premium">Plano Premium</option>
+                                <option value="Empresarial">Plano Empresarial</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="valor">Valor Mensal (R$)</label>
+                            <input type="number" id="valor" placeholder="150.00" required step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="fornecedor">Fornecedor Associado</label>
+                            <input type="text" id="fornecedor" placeholder="Ex: Tech Solutions" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit"><i class="fas fa-check-circle"></i> Cadastrar Cliente</button>
+                </form>
+
+                <div class="table-header-controls">
+                    <h3 class="table-title">Clientes Ativos (<span id="totalClientes">0</span>)</h3>
+                    <div class="form-group-search">
+                        <input type="text" id="searchInput" placeholder="Buscar cliente por nome ou plano..." onkeyup="filterTable()">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nome</th>
+                                <th>Plano</th>
+                                <th>Valor</th>
+                                <th>Fornecedor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaClientesBody">
+                            </tbody>
+                    </table>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="script.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script src="particles-config.js"></script>
+</body>
+</html>
