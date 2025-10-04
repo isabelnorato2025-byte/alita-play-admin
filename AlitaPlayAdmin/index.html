@@ -36,7 +36,6 @@
                 
                 <input type="hidden" id="loginPassword" value="code_access_only">
 
-
                 <div class="form-group remember-me">
                     <input type="checkbox" id="rememberMe">
                     <label for="rememberMe">Lembrar código</label>
@@ -130,6 +129,76 @@
                 </table>
             </div>
 
+        </div>
+    </template>
+
+    <template id="revendedor-dashboard-template">
+        <section class="summary-cards">
+            <div class="card fade-in-up delay-2">
+                <i class="fas fa-user-plus icon-card"></i>
+                <h3>Clientes Cadastrados</h3>
+                <p class="card-value" id="totalClientesCard">0</p>
+            </div>
+            <div class="card fade-in-up delay-3">
+                <i class="fas fa-dollar-sign icon-card"></i>
+                <h3>Faturamento (Simulado)</h3>
+                <p class="card-value" id="faturamentoCard">R$ 0,00</p>
+            </div>
+            <div class="card fade-in-up delay-4">
+                <i class="fas fa-handshake icon-card"></i>
+                <h3>Fornecedores</h3>
+                <p class="card-value">12</p>
+            </div>
+        </section>
+
+        <div class="data-management fade-in-up delay-5">
+            <h2><i class="fas fa-users"></i> Cadastro e Gestão de Clientes</h2>
+            
+            <form id="cadastroClienteForm" class="form-container">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="clienteNome">Nome Completo</label>
+                        <input type="text" id="clienteNome" placeholder="Ex: Maria da Silva" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientePlano">Plano/Serviço</label>
+                        <select id="clientePlano" required>
+                            <option value="">Selecione um Plano</option>
+                            <option value="Plano Básico">Plano Básico</option>
+                            <option value="Plano Intermediário">Plano Intermediário</option>
+                            <option value="Plano Premium">Plano Premium</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="clienteValor">Valor Mensal (R$)</label>
+                        <input type="number" id="clienteValor" placeholder="150.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clienteFornecedor">Fornecedor Associado</label>
+                        <input type="text" id="clienteFornecedor" placeholder="Ex: Tech Solutions" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit"><i class="fas fa-check-circle"></i> Cadastrar Cliente</button>
+            </form>
+
+            <h3 class="table-title">Lista de Clientes <span id="totalClientes"></span></h3>
+            
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nome</th>
+                            <th>Plano</th>
+                            <th>Valor (R$)</th>
+                            <th>Fornecedor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaClientesBody">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </template>
 
