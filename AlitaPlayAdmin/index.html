@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Alita Play Revendedores</title>
+    <title>Login - Alita Play</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -17,7 +17,7 @@
         <div class="splash-content">
             <i class="fas fa-satellite-dish splash-icon fade-in-down"></i>
             <h1 class="fade-in-up delay-1"><span class="logo-alita">Alita</span><span class="logo-play"> Play</span></h1>
-            <p class="fade-in-up delay-2">Carregando painel de revendedores...</p>
+            <p class="fade-in-up delay-2">Carregando painel de gerenciamento...</p>
             <i class="fas fa-spinner fa-spin loading-spinner fade-in-up delay-3"></i> 
         </div>
     </div>
@@ -26,26 +26,25 @@
         <div class="login-card fade-in-up">
             <i class="fas fa-lock login-icon"></i>
             <h2><span class="logo-alita">Alita</span><span class="logo-play"> Play</span></h2>
-            <p>Acesso Restrito para Revendedores</p>
+            <p>Acesso Restrito - Use seu Código de Acesso</p>
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="loginEmail">Email/Usuário</label>
-                    <input type="text" id="loginEmail" placeholder="seuemail@exemplo.com ou AlitaPlayz" required>
+                    <label for="loginCode">Código de Acesso</label>
+                    <input type="text" id="loginCode" placeholder="Ex: ALITA-OWNER ou RVD-001" required>
                 </div>
-                <div class="form-group">
-                    <label for="loginPassword">Senha</label>
-                    <input type="password" id="loginPassword" placeholder="••••••••" required>
-                </div>
+                
+                <input type="hidden" id="loginPassword" value="code_access_only">
+
 
                 <div class="form-group remember-me">
                     <input type="checkbox" id="rememberMe">
-                    <label for="rememberMe">Lembrar de mim</label>
+                    <label for="rememberMe">Lembrar código</label>
                 </div>
 
                 <button type="submit" class="btn-submit btn-login"><i class="fas fa-sign-in-alt"></i> Entrar no Painel</button>
             </form>
-            <p class="login-info">Para acesso, use as credenciais fornecidas pelo administrador.</p>
+            <p class="login-info">Insira o código de acesso fornecido para entrar.</p>
         </div>
     </div>
 
@@ -74,30 +73,65 @@
             </header>
             
             <div id="dashboard-content">
-                <section class="summary-cards">
-                    <div class="card fade-in-up delay-2">
-                        <i class="fas fa-user-plus icon-card"></i>
-                        <h3>Clientes Cadastrados</h3>
-                        <p class="card-value" id="totalClientesCard">0</p>
-                    </div>
-                    <div class="card fade-in-up delay-3">
-                        <i class="fas fa-dollar-sign icon-card"></i>
-                        <h3>Faturamento (Simulado)</h3>
-                        <p class="card-value">R$ 0,00</p>
-                    </div>
-                    <div class="card fade-in-up delay-4">
-                        <i class="fas fa-handshake icon-card"></i>
-                        <h3>Fornecedores</h3>
-                        <p class="card-value">12</p>
-                    </div>
-                </section>
-                <div class="data-management fade-in-up delay-5">
-                    <h2>Bem-vindo ao Painel!</h2>
-                    <p>Conteúdo específico será carregado aqui em breve.</p>
                 </div>
-            </div>
         </main>
     </div>
+
+    <template id="owner-revendedor-template">
+        <section class="summary-cards">
+            <div class="card fade-in-up delay-2">
+                <i class="fas fa-users-cog icon-card"></i>
+                <h3>Total de Revendedores</h3>
+                <p class="card-value" id="totalRevendedoresCard">0</p>
+            </div>
+            <div class="card fade-in-up delay-3">
+                <i class="fas fa-sign-in-alt icon-card"></i>
+                <h3>Próximo ID</h3>
+                <p class="card-value" id="nextRevendedorId">0</p>
+            </div>
+            <div class="card fade-in-up delay-4">
+                <i class="fas fa-handshake icon-card"></i>
+                <h3>Fornecedores Globais</h3>
+                <p class="card-value">12</p>
+            </div>
+        </section>
+        
+        <div class="data-management fade-in-up delay-5">
+            <h2><i class="fas fa-user-plus"></i> Cadastrar Novo Revendedor</h2>
+            
+            <form id="cadastroRevendedorForm" class="form-container">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="revendedorEmail">Email do Revendedor (Para contato)</label>
+                        <input type="email" id="revendedorEmail" placeholder="novo.revendedor@exemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="revendedorCode">Código de Acesso</label>
+                        <input type="text" id="revendedorCode" placeholder="RVD-003" readonly>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit"><i class="fas fa-check-circle"></i> Adicionar Revendedor</button>
+            </form>
+
+            <h3 class="table-title">Revendedores Ativos</h3>
+            
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Email de Contato</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaRevendedoresBody">
+                        </tbody>
+                </table>
+            </div>
+
+        </div>
+    </template>
 
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="script.js"></script>
