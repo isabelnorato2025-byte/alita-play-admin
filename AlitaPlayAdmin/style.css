@@ -437,7 +437,15 @@ body {
     color: var(--text-muted);
     font-size: 18px;
     margin-top: 10px;
+    margin-bottom: 25px; /* Adicionado espaço para o spinner */
 }
+
+/* NOVO: Estilização do Spinner */
+.loading-spinner {
+    font-size: 30px;
+    color: var(--primary-color);
+}
+
 
 /* --- TELA DE LOGIN --- */
 
