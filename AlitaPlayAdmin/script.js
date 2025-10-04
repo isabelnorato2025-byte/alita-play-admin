@@ -2,6 +2,7 @@
 let currentRevendedorEmail = null; 
 
 document.addEventListener('DOMContentLoaded', () => {
+    const splashScreen = document.getElementById('splash-screen');
     const loginScreen = document.getElementById('login-screen');
     const dashboardApp = document.getElementById('dashboard-app');
     const loginForm = document.getElementById('loginForm');
@@ -15,9 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeUser = document.getElementById('welcome-user');
     const displayUserEmail = document.getElementById('display-user-email');
 
+    // Senha "123456" codificada em Base64 é "MTIzNDU2"
+    const USUARIOS_MOCK = {
+        "revendedor1@alita.com": "MTIzNDU2", 
+        "revendedor2@alita.com": "MTIzNDU2"  
+    };
+
+    function decodeBase64(encoded) {
+        return atob(encoded);
+    }
+    
     // ❗ CHAVE ÚNICA DO LOCAL STORAGE BASEADA NO EMAIL DO REVENDEDOR ❗
     function getStorageKey(email) {
-        // Ex: "clientes_admin_pro_joao@email.com"
         return `clientes_admin_pro_${email.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
     }
 
@@ -59,34 +69,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }).showToast();
     }
 
-    function showLogin() {
+    // MUDANÇA: Parâmetro showToast para controlar a mensagem de "Saída"
+    function showLogin(showToast = false) { 
         localStorage.removeItem('current_revendedor_email');
         currentRevendedorEmail = null;
         dashboardApp.classList.add('hidden');
         loginScreen.classList.remove('hidden');
         
-        Toastify({
-            text: "Você saiu do painel com segurança.",
-            duration: 3000,
-            close: true,
-            gravity: "top", 
-            position: "right",
-            style: { background: "#E74C3C", color: "white", fontWeight: "bold" }
-        }).showToast();
+        if (showToast) {
+            Toastify({
+                text: "Você saiu do painel com segurança.",
+                duration: 3000,
+                close: true,
+                gravity: "top", 
+                position: "right",
+                style: { background: "#E74C3C", color: "white", fontWeight: "bold" }
+            }).showToast();
+        }
     }
 
     // --- AUTENTICAÇÃO E EVENTOS ---
-
-    // Senha "123456" codificada em Base64 é "MTIzNDU2"
-    const USUARIOS_MOCK = {
-        "revendedor1@alita.com": "MTIzNDU2", 
-        "revendedor2@alita.com": "MTIzNDU2"  
-    };
-
-    function decodeBase64(encoded) {
-        // Usa a função nativa do navegador para decodificar o hash
-        return atob(encoded);
-    }
 
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -95,9 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const storedHash = USUARIOS_MOCK[email];
 
-        // Compara a senha digitada com a senha decodificada do código
         if (storedHash && decodeBase64(storedHash) === password) {
-            // Guarda o email na sessão para manter o login após recarregar a página
             localStorage.setItem('current_revendedor_email', email);
             showDashboard(email);
         } else {
@@ -112,27 +112,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Logout
+    // Logout: CHAMAR showLogin(true) para MOSTRAR O TOAST
     logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        showLogin();
+        showLogin(true); 
     });
-
-    // Verifica se há um usuário logado ao carregar a página
-    const storedEmail = localStorage.getItem('current_revendedor_email');
-    if (storedEmail) {
-        // Verifica se o email armazenado existe na lista de usuários MOCK
-        if (USUARIOS_MOCK[storedEmail]) {
-             showDashboard(storedEmail);
+    
+    // LÓGICA DE INICIALIZAÇÃO E SPLASH SCREEN
+    
+    function initializeApp() {
+        const storedEmail = localStorage.getItem('current_revendedor_email');
+        if (storedEmail) {
+            if (USUARIOS_MOCK[storedEmail]) {
+                 showDashboard(storedEmail);
+            } else {
+                 showLogin();
+            }
         } else {
-             // Caso o usuário tenha sido removido da lista MOCK
-             showLogin();
+            showLogin();
         }
-    } else {
-        showLogin();
     }
     
-    // --- FUNÇÕES DO DASHBOARD (Ajustadas para usar a nova lógica de dados) ---
+    // Adiciona um atraso para mostrar o Splash Screen
+    setTimeout(() => {
+        splashScreen.classList.add('splash-fade-out'); // Faz o splash desaparecer
+        initializeApp(); // Inicia o login/dashboard
+    }, 2500); // 2.5 segundos
+
+    // --- FUNÇÕES DO DASHBOARD ---
     
     function renderizarTabela(data = carregarClientes()) {
         listaClientesBody.innerHTML = '';
@@ -166,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
         totalClientesSpan.textContent = clientesCompletos.length;
         totalClientesCard.textContent = clientesCompletos.length; 
         
-        // Atualiza Faturamento
         document.querySelector('.card-value:nth-child(2)').textContent = `R$ ${totalFaturamento.toFixed(2).replace('.', ',')}`;
     }
 
