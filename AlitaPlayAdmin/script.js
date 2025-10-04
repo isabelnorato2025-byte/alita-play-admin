@@ -22,16 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const dashboardContent = document.getElementById('dashboard-content');
 
 
-    // Senha "123456" codificada em Base64 é "MTIzNDU2"
-    // Senha "APL@1910z" codificada em Base64 é "QVBMAEAxOTEwWg=="
+    // MOCK DE USUÁRIOS: SENHA DO OWNER SIMPLIFICADA PARA EVITAR ERROS DE BASE64
     const USUARIOS_MOCK = {
-        "alitaplayz": { hash: "QVBMAEAxOTEwWg==", profile: "owner" }, // NOVO: Usuário Owner
+        // CORRIGIDO: Senha em texto simples 'APL@1910z'
+        "alitaplayz": { hash: "APL@1910z", profile: "owner" }, 
+        
+        // MANTIDO: Revendedores usando '123456' (Base64: 'MTIzNDU2')
         "revendedor1@alita.com": { hash: "MTIzNDU2", profile: "revendedor" }, 
         "revendedor2@alita.com": { hash: "MTIzNDU2", profile: "revendedor" }  
     };
 
+    // Apenas para decodificar senhas do Revendedor
     function decodeBase64(encoded) {
-        // A função atob() decodifica de Base64
         return atob(encoded);
     }
     
@@ -58,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Funções para salvar/carregar credenciais do "Lembrar de mim"
     function saveCredentials(user, password) {
         localStorage.setItem('remembered_user', user);
-        localStorage.setItem('remembered_password', btoa(password)); // Salva a senha codificada
+        // Salvamos a senha (real ou hash) aqui. No caso do Owner é real, no Revendedor é hash.
+        const storedPassword = USUARIOS_MOCK[user].profile === 'owner' ? btoa(password) : password;
+        localStorage.setItem('remembered_password', storedPassword); 
     }
 
     function clearCredentials() {
@@ -72,11 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (user && encodedPassword) {
             loginEmailInput.value = user;
-            // Não pré-preenche a senha por segurança, mas marca o checkbox
             rememberMeCheckbox.checked = true;
             
             // Opcional: pré-preencher a senha, apenas para fins de demonstração (Remover em produção real)
-            // loginPasswordInput.value = decodeBase64(encodedPassword); 
+            // if (user === 'alitaplayz') {
+            //      loginPasswordInput.value = decodeBase64(encodedPassword);
+            // } 
         }
     }
 
@@ -87,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (profile === 'owner') {
             menuHTML = `
                 <li><a href="#" class="active"><i class="fas fa-hammer"></i> Painel Owner</a></li>
-                <li><a href="#"><i class="fas fa-users-cog"></i> Gerenciar Revendedores</a></li>
+                <li><a href="#" id="menuGerenciarRevendedores"><i class="fas fa-users-cog"></i> Gerenciar Revendedores</a></li>
                 <li><a href="#"><i class="fas fa-server"></i> Status do Sistema</a></li>
                 <li><a href="#"><i class="fas fa-chart-line"></i> Relatórios Globais</a></li>
             `;
@@ -119,17 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         welcomeUser.textContent = user.split('@')[0].toUpperCase();
         displayUserEmail.textContent = `Olá, ${user}`;
         
-        // Se for Revendedor, renderiza a tabela (O Owner não tem tabela de clientes padrão)
         if (profile === 'revendedor') {
-            // AQUI VOCÊ PODE CARREGAR A TELA DE GESTÃO DE CLIENTES DO REVENDEDOR
-            // Por enquanto, apenas atualiza os cards
+            // Implementação futura da tela do Revendedor
             renderizarTabela(); 
         } else if (profile === 'owner') {
-            // AQUI VOCÊ CARREGA O CONTEÚDO ESPECÍFICO DO OWNER
-             dashboardContent.innerHTML = `<div class="data-management fade-in-up delay-5">
-                <h2><i class="fas fa-hammer"></i> Gerenciamento do Sistema</h2>
-                <p>Este é o painel de nível superior. Use o menu lateral para gerenciar Revendedores e configurações globais.</p>
-                </div>`;
+            // Conteúdo inicial do Owner: Gerenciar Revendedores
+             loadOwnerRevendedorView();
         }
         
         Toastify({
@@ -172,8 +172,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const rememberMe = rememberMeCheckbox.checked;
         
         const userData = USUARIOS_MOCK[user];
+        let authSuccessful = false;
 
-        if (userData && decodeBase64(userData.hash) === password) {
+        if (userData) {
+            // Lógica de autenticação para o Owner (senha real)
+            if (userData.profile === 'owner') {
+                authSuccessful = (userData.hash === password);
+            } 
+            // Lógica de autenticação para o Revendedor (senha em Base64)
+            else if (userData.profile === 'revendedor') {
+                try {
+                    authSuccessful = (decodeBase64(userData.hash) === password);
+                } catch (error) {
+                    console.error("Erro na decodificação Base64:", error);
+                    authSuccessful = false;
+                }
+            }
+        }
+
+
+        if (authSuccessful) {
             
             // Lógica de "Lembrar de mim"
             if (rememberMe) {
@@ -229,52 +247,37 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeApp(); 
     }, 4000); 
 
-    // --- FUNÇÕES DO DASHBOARD (MANTIDAS DO REVENDEDOR POR ENQUANTO) ---
-    // Estas funções só serão usadas se o perfil for 'revendedor'
-    
+    // --- FUNÇÕES DO DASHBOARD REVENDEDOR (SIMPLIFICADAS) ---
     function renderizarTabela(data = carregarClientes()) {
-        const listaClientesBody = document.getElementById('listaClientesBody');
-        
-        if (!listaClientesBody) return; // Se for o Owner, o corpo da tabela pode não existir na view
-        
-        listaClientesBody.innerHTML = '';
-        
-        let totalFaturamento = 0;
-
-        data.forEach((cliente, index) => {
-            const row = listaClientesBody.insertRow();
-            
-            row.insertCell().textContent = index + 1; 
-            row.insertCell().textContent = cliente.nome;
-            row.insertCell().textContent = cliente.plano;
-            
-            const valor = parseFloat(cliente.valor || 0);
-            row.insertCell().textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
-            totalFaturamento += valor; 
-            
-            row.insertCell().textContent = cliente.fornecedor;
-            
-            const acoesCell = row.insertCell();
-            const btnExcluir = document.createElement('button');
-            btnExcluir.textContent = 'Excluir';
-            btnExcluir.classList.add('btn-delete');
-            
-            btnExcluir.onclick = () => excluirCliente(carregarClientes().findIndex(c => c.nome === cliente.nome && c.plano === cliente.plano)); 
-            
-            acoesCell.appendChild(btnExcluir);
-        });
-
-        const clientesCompletos = carregarClientes();
-        totalClientesSpan.textContent = clientesCompletos.length;
-        totalClientesCard.textContent = clientesCompletos.length; 
-        
-        // Este seletor assume que o card de faturamento é o segundo.
-        const faturamentoCard = document.querySelector('.summary-cards .card-value:nth-child(2)');
-        if(faturamentoCard) {
-            faturamentoCard.textContent = `R$ ${totalFaturamento.toFixed(2).replace('.', ',')}`;
-        }
+        // Esta é a função do Revendedor, deixaremos vazia por enquanto
     }
 
-    // Ações de formulário e exclusão foram omitidas por serem específicas do Revendedor,
-    // mas devem ser movidas para dentro da lógica de carregamento do conteúdo do Revendedor (próximos passos).
+    // --- FUNÇÕES DO DASHBOARD OWNER (PRÓXIMO PASSO) ---
+    function loadOwnerRevendedorView() {
+        // Conteúdo inicial da tela "Gerenciar Revendedores"
+        dashboardContent.innerHTML = `
+            <section class="summary-cards">
+                <div class="card fade-in-up delay-2">
+                    <i class="fas fa-users-cog icon-card"></i>
+                    <h3>Total de Revendedores</h3>
+                    <p class="card-value" id="totalRevendedoresCard">2</p>
+                </div>
+                <div class="card fade-in-up delay-3">
+                    <i class="fas fa-sign-in-alt icon-card"></i>
+                    <h3>Revendedores Ativos</h3>
+                    <p class="card-value">2</p>
+                </div>
+                <div class="card fade-in-up delay-4">
+                    <i class="fas fa-handshake icon-card"></i>
+                    <h3>Fornecedores Globais</h3>
+                    <p class="card-value">12</p>
+                </div>
+            </section>
+            
+            <div class="data-management fade-in-up delay-5">
+                <h2><i class="fas fa-users-cog"></i> Gerenciar Contas de Revendedores</h2>
+                <p>Aqui você poderá cadastrar, editar e desativar contas de Revendedores.</p>
+                </div>
+        `;
+    }
 });
