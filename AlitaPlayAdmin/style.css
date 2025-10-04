@@ -437,10 +437,10 @@ body {
     color: var(--text-muted);
     font-size: 18px;
     margin-top: 10px;
-    margin-bottom: 25px; /* Adicionado espaço para o spinner */
+    margin-bottom: 25px; 
 }
 
-/* NOVO: Estilização do Spinner */
+/* Estilização do Spinner */
 .loading-spinner {
     font-size: 30px;
     color: var(--primary-color);
@@ -495,7 +495,26 @@ body {
     margin-bottom: 20px;
 }
 
-.login-card input[type="email"], .login-card input[type="password"] {
+/* Novo Estilo para "Lembrar de mim" */
+.login-card .remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.login-card .remember-me input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    accent-color: var(--primary-color); /* Cor de destaque do checkbox */
+}
+
+.login-card .remember-me label {
+    font-weight: 400;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.login-card input[type="text"], .login-card input[type="email"], .login-card input[type="password"] {
     width: 100%;
     padding: 12px;
     background-color: #333;
