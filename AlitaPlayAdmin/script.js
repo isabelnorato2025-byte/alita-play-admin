@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).showToast();
     }
 
-    // MUDANÇA: Parâmetro showToast para controlar a mensagem de "Saída"
+    // A notificação de saída só aparecerá se 'showToast' for TRUE (ao clicar no botão Sair)
     function showLogin(showToast = false) { 
         localStorage.removeItem('current_revendedor_email');
         currentRevendedorEmail = null;
@@ -126,18 +126,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (USUARIOS_MOCK[storedEmail]) {
                  showDashboard(storedEmail);
             } else {
-                 showLogin();
+                 showLogin(); // showLogin(false)
             }
         } else {
-            showLogin();
+            showLogin(); // showLogin(false)
         }
     }
     
-    // Adiciona um atraso para mostrar o Splash Screen
+    // MUDANÇA: Adiciona um atraso de 4 segundos para mostrar o Splash Screen
     setTimeout(() => {
         splashScreen.classList.add('splash-fade-out'); // Faz o splash desaparecer
         initializeApp(); // Inicia o login/dashboard
-    }, 2500); // 2.5 segundos
+    }, 4000); // 4 segundos
 
     // --- FUNÇÕES DO DASHBOARD ---
     
