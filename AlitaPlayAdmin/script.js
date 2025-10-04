@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logoutBtn');
     
     // Elementos de Login
-    const loginCodeInput = document.getElementById('loginCode'); // NOVO: Campo de Código
+    const loginCodeInput = document.getElementById('loginCode'); // Campo de Código
     const rememberMeCheckbox = document.getElementById('rememberMe');
 
     // Elementos do Dashboard
@@ -19,27 +19,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const dashboardContent = document.getElementById('dashboard-content');
 
 
-    // MOCK DE USUÁRIOS: CHAVE AGORA É O CÓDIGO DE ACESSO
+    // MOCK DE USUÁRIOS: CHAVE AGORA É O CÓDIGO DE ACESSO (em minúsculo)
     const REVENDEDOR_STORAGE_KEY = 'alita_play_revendedores_mock';
 
-    // Os códigos de acesso DEVEM SER SEMPRE MINÚSCULOS no MOCK, para comparação.
     let USUARIOS_MOCK = {
-        // OWNER (ADMINISTRADOR) - Código fixo e fácil de memorizar
+        // OWNER (ADMINISTRADOR)
         "alita-owner": { id: "OWN-001", code: "ALITA-OWNER", profile: "owner", status: "ativo", name: "AlitaPlayz" }, 
         
-        // REVENDEDORES - Códigos baseados no ID
+        // REVENDEDORES
         "rvd-001": { id: "RVD-001", code: "RVD-001", profile: "revendedor", status: "ativo", email: "revendedor1@alita.com" }, 
         "rvd-002": { id: "RVD-002", code: "RVD-002", profile: "revendedor", status: "ativo", email: "revendedor2@alita.com" }  
     };
 
-    // --- FUNÇÕES DE DADOS GLOBAIS (OWNER) ---
+    // --- FUNÇÕES DE DADOS GLOBAIS (Owner e Revendedor) ---
 
-    // Carrega o mock de usuários, com prioridade para o localStorage
     function loadUsersMock() {
         const storedRevendedores = localStorage.getItem(REVENDEDOR_STORAGE_KEY);
         if (storedRevendedores) {
             const revendedores = JSON.parse(storedRevendedores);
-            // Mescla o Owner original (fixo) com os Revendedores do localStorage
             USUARIOS_MOCK = {
                 "alita-owner": USUARIOS_MOCK["alita-owner"],
                 ...revendedores
@@ -48,9 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return USUARIOS_MOCK;
     }
 
-    // Salva apenas as contas de Revendedores no localStorage
     function saveRevendedoresToStorage() {
-        // Filtra os usuários com profile 'revendedor' e o owner (se for um novo owner)
         const revendedores = Object.keys(USUARIOS_MOCK)
             .filter(key => USUARIOS_MOCK[key].profile === 'revendedor')
             .reduce((obj, key) => {
@@ -59,6 +54,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }, {});
         
         localStorage.setItem(REVENDEDOR_STORAGE_KEY, JSON.stringify(revendedores));
+    }
+    
+    // Chave única para clientes, baseada no código do revendedor logado
+    function getClientesStorageKey(code) {
+        return `clientes_data_${code.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+    }
+
+    function carregarClientes() {
+        if (!currentRevendedorUser) return [];
+        const key = getClientesStorageKey(currentRevendedorUser);
+        const clientesJSON = localStorage.getItem(key);
+        return clientesJSON ? JSON.parse(clientesJSON) : [];
+    }
+
+    function salvarClientes(clientes) {
+        if (!currentRevendedorUser) return;
+        const key = getClientesStorageKey(currentRevendedorUser);
+        localStorage.setItem(key, JSON.stringify(clientes));
     }
 
     // --- FUNÇÕES DE AUTENTICAÇÃO E TELA ---
@@ -84,25 +97,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let menuHTML = '';
         if (profile === 'owner') {
             menuHTML = `
-                <li><a href="#" class="active" data-view="owner-home"><i class="fas fa-hammer"></i> Painel Owner</a></li>
-                <li><a href="#" data-view="gerenciar-revendedores" id="menuGerenciarRevendedores"><i class="fas fa-users-cog"></i> Gerenciar Revendedores</a></li>
+                <li><a href="#" class="active" data-view="gerenciar-revendedores"><i class="fas fa-users-cog"></i> Gerenciar Revendedores</a></li>
                 <li><a href="#" data-view="status-sistema"><i class="fas fa-server"></i> Status do Sistema</a></li>
                 <li><a href="#" data-view="relatorios-globais"><i class="fas fa-chart-line"></i> Relatórios Globais</a></li>
             `;
             document.querySelector('.top-header h1').innerHTML = `<span class="fade-in-down">Painel do Owner:</span> <span id="welcome-user"></span>`;
         } else if (profile === 'revendedor') {
             menuHTML = `
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Início</a></li>
-                <li><a href="#"><i class="fas fa-users"></i> Meus Clientes</a></li>
-                <li><a href="#"><i class="fas fa-tags"></i> Planos & Valores</a></li>
-                <li><a href="#"><i class="fas fa-truck"></i> Fornecedores</a></li>
-                <li><a href="#"><i class="fas fa-file-invoice-dollar"></i> Financeiro</a></li>
+                <li><a href="#" class="active" data-view="revendedor-dashboard"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="#" data-view="meus-clientes"><i class="fas fa-users"></i> Meus Clientes</a></li>
+                <li><a href="#" data-view="planos-valores"><i class="fas fa-tags"></i> Planos & Valores</a></li>
+                <li><a href="#" data-view="financeiro"><i class="fas fa-file-invoice-dollar"></i> Financeiro</a></li>
             `;
             document.querySelector('.top-header h1').innerHTML = `<span class="fade-in-down">Painel do Revendedor:</span> <span id="welcome-user"></span>`;
         }
         mainMenu.innerHTML = menuHTML;
         
-        // Adicionar eventos de clique ao menu
+        // Lógica de navegação entre views
         mainMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -112,6 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const view = link.getAttribute('data-view');
                 if (view === 'gerenciar-revendedores') {
                     loadOwnerRevendedorView();
+                } else if (view === 'revendedor-dashboard' || view === 'meus-clientes') {
+                    loadRevendedorDashboardView();
                 } else {
                      dashboardContent.innerHTML = `<div class="data-management fade-in-up delay-5">
                         <h2><i class="fas fa-info-circle"></i> View: ${view.toUpperCase().replace('-', ' ')}</h2>
@@ -122,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // FUNÇÃO CENTRAL DE REDIRECIONAMENTO APÓS O LOGIN
     function showDashboard(code, userData) {
         currentRevendedorUser = code;
         loginScreen.classList.add('hidden');
@@ -130,19 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
         generateMenu(userData.profile);
         
         const displayName = userData.profile === 'owner' ? userData.name : userData.code;
-        const displaySub = userData.profile === 'owner' ? `Owner: ${userData.code}` : `Revendedor: ${userData.email}`;
+        const displaySub = userData.profile === 'owner' ? `Owner: ${userData.code}` : `Revendedor: ${userData.email || userData.code}`;
         
         welcomeUser.textContent = displayName.toUpperCase();
         displayUserEmail.textContent = `Olá, ${displaySub}`;
         
+        // Redirecionamento Automático
         if (userData.profile === 'owner') {
-             loadOwnerRevendedorView();
+             loadOwnerRevendedorView(); // Padrão: Gerenciar Revendedores
         } else {
-             // Conteúdo padrão do revendedor será carregado aqui.
-             dashboardContent.innerHTML = `<div class="data-management fade-in-up delay-5">
-                <h2><i class="fas fa-home"></i> Painel do Revendedor</h2>
-                <p>Use o menu lateral para gerenciar seus clientes.</p>
-                </div>`;
+             loadRevendedorDashboardView(); // Padrão: Cadastro de Clientes
         }
         
         Toastify({
@@ -177,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        // O código de acesso é a chave de login
         const code = loginCodeInput.value.toLowerCase(); 
         const rememberMe = rememberMeCheckbox.checked;
         
@@ -212,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     function initializeApp() {
-        loadUsersMock(); // Carrega os usuários na inicialização
+        loadUsersMock(); 
         loadCredentials();
 
         const storedCode = localStorage.getItem('current_revendedor_user');
@@ -228,7 +238,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Atraso de 4 segundos para o Splash Screen
     setTimeout(() => {
         splashScreen.classList.add('splash-fade-out'); 
         initializeApp(); 
@@ -241,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (revendedores.length === 0) return 1;
         
         const maxId = revendedores.reduce((max, user) => {
-            // Assume que o ID tem o formato RVD-XXX
             const idNum = parseInt(user.id.split('-')[1]); 
             return idNum > max ? idNum : max;
         }, 0);
@@ -267,12 +275,11 @@ document.addEventListener('DOMContentLoaded', () => {
             btnExcluir.textContent = 'Excluir';
             btnExcluir.classList.add('btn-delete');
             
-            btnExcluir.onclick = () => excluirRevendedor(user.code.toLowerCase()); // Passa o código para exclusão
+            btnExcluir.onclick = () => excluirRevendedor(user.code.toLowerCase()); 
             
             acoesCell.appendChild(btnExcluir);
         });
 
-        // Atualiza os cards de resumo e o campo de cadastro
         const nextIdNum = getNextRevendedorId();
         const nextCode = `RVD-${nextIdNum.toString().padStart(3, '0')}`;
         
@@ -281,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const revendedorCodeInput = document.getElementById('revendedorCode');
         if (revendedorCodeInput) {
-             revendedorCodeInput.value = nextCode; // Pré-preenche o novo código
+             revendedorCodeInput.value = nextCode; 
         }
     }
 
@@ -302,20 +309,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function cadastrarNovoRevendedor(e) {
         e.preventDefault();
         
-        const email = document.getElementById('revendedorEmail').value; // Email pode ter maiúsculas
-        const code = document.getElementById('revendedorCode').value; // RVD-003
-        const codeKey = code.toLowerCase(); // rvd-003 (chave do MOCK)
+        const email = document.getElementById('revendedorEmail').value; 
+        const code = document.getElementById('revendedorCode').value; 
+        const codeKey = code.toLowerCase(); 
 
-        // 1. Validação
         if (USUARIOS_MOCK[codeKey]) {
             Toastify({ text: `Erro: O código ${code} já está cadastrado.`, style: { background: "red" } }).showToast();
             return;
         }
 
-        // 2. Adicionar ao MOCK
         const novoRevendedor = { 
-            id: code, // Mantém o ID formatado RVD-XXX
-            code: code, // Mantém o código formatado RVD-XXX
+            id: code, 
+            code: code, 
             profile: "revendedor", 
             status: "ativo",
             email: email
@@ -323,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         USUARIOS_MOCK[codeKey] = novoRevendedor;
         
-        // 3. Salvar no Storage e Renderizar
         saveRevendedoresToStorage();
         renderRevendedoresTable();
         
@@ -346,6 +350,113 @@ document.addEventListener('DOMContentLoaded', () => {
             
             Toastify({
                 text: `Revendedor ${codeKey.toUpperCase()} excluído com sucesso.`,
+                duration: 4000,
+                style: { background: "#E74C3C" }
+            }).showToast();
+        }
+    }
+    
+    // --- FUNÇÕES DE GERENCIAMENTO DE CLIENTES (REVENDEDOR) ---
+    
+    function renderClientesTable(data = carregarClientes()) {
+        const listaClientesBody = document.getElementById('listaClientesBody');
+        const totalClientesSpan = document.getElementById('totalClientes');
+        const totalClientesCard = document.getElementById('totalClientesCard');
+        const faturamentoCard = document.getElementById('faturamentoCard');
+        
+        if (!listaClientesBody) return;
+        
+        listaClientesBody.innerHTML = '';
+        
+        let totalFaturamento = 0;
+
+        data.forEach((cliente, index) => {
+            const row = listaClientesBody.insertRow();
+            
+            row.insertCell().textContent = index + 1; 
+            row.insertCell().textContent = cliente.nome;
+            row.insertCell().textContent = cliente.plano;
+            
+            const valor = parseFloat(cliente.valor || 0);
+            row.insertCell().textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+            totalFaturamento += valor; 
+            
+            row.insertCell().textContent = cliente.fornecedor;
+            
+            const acoesCell = row.insertCell();
+            const btnExcluir = document.createElement('button');
+            btnExcluir.textContent = 'Excluir';
+            btnExcluir.classList.add('btn-delete');
+            
+            btnExcluir.onclick = () => excluirCliente(index); 
+            
+            acoesCell.appendChild(btnExcluir);
+        });
+        
+        // Atualiza os cards
+        const clientesCompletos = carregarClientes();
+        if (totalClientesSpan) totalClientesSpan.textContent = `(${clientesCompletos.length})`;
+        if (totalClientesCard) totalClientesCard.textContent = clientesCompletos.length; 
+        if (faturamentoCard) faturamentoCard.textContent = `R$ ${totalFaturamento.toFixed(2).replace('.', ',')}`;
+    }
+
+    function loadRevendedorDashboardView() {
+        // Carrega o template HTML do Revendedor
+        const template = document.getElementById('revendedor-dashboard-template');
+        if (!template) return;
+        
+        const clone = document.importNode(template.content, true);
+        dashboardContent.innerHTML = '';
+        dashboardContent.appendChild(clone);
+        
+        renderClientesTable(); 
+        
+        const cadastroForm = document.getElementById('cadastroClienteForm');
+        cadastroForm.addEventListener('submit', cadastrarNovoCliente);
+    }
+    
+    function cadastrarNovoCliente(e) {
+        e.preventDefault();
+        
+        const nome = document.getElementById('clienteNome').value.trim();
+        const plano = document.getElementById('clientePlano').value;
+        const valor = parseFloat(document.getElementById('clienteValor').value);
+        const fornecedor = document.getElementById('clienteFornecedor').value.trim();
+
+        if (nome === "" || plano === "" || isNaN(valor) || fornecedor === "") {
+             Toastify({ text: `Preencha todos os campos corretamente!`, style: { background: "red" } }).showToast();
+             return;
+        }
+
+        const clientes = carregarClientes();
+        const novoCliente = { nome, plano, valor, fornecedor, dataCadastro: new Date().toISOString() };
+        
+        clientes.push(novoCliente);
+        salvarClientes(clientes);
+        renderClientesTable();
+        
+        Toastify({
+            text: `Cliente ${nome} cadastrado com sucesso!`,
+            duration: 3000,
+            style: { background: "#18BC9C" }
+        }).showToast();
+
+        e.target.reset();
+    }
+
+    window.excluirCliente = function(index) {
+        if (!confirm(`Tem certeza que deseja EXCLUIR este cliente?`)) return;
+
+        const clientes = carregarClientes();
+        
+        if (index >= 0 && index < clientes.length) {
+            const nomeExcluido = clientes[index].nome;
+            clientes.splice(index, 1); 
+            salvarClientes(clientes);
+            renderClientesTable();
+            
+            Toastify({
+                text: `Cliente ${nomeExcluido} excluído com sucesso.`,
                 duration: 4000,
                 style: { background: "#E74C3C" }
             }).showToast();
